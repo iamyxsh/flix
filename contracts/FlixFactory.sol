@@ -24,15 +24,21 @@ contract FlixFactory is Ownable {
         string calldata _name,
         uint256 _totalTickets,
         uint256 _price,
-        uint256 __releaseDate
+        uint256 _releaseDate
     ) public returns (address clone) {
         bytes32 salt = keccak256(
-            abi.encodePacked(_name, _totalTickets, _price, __releaseDate)
+            abi.encodePacked(_name, _totalTickets, _price, _releaseDate)
         );
 
         clone = Clones.cloneDeterministic(flixAddress, salt);
 
-        Flix(clone).setData(_name, _totalTickets, _price, __releaseDate);
+        Flix(clone).setData(
+            _name,
+            _totalTickets,
+            _price,
+            _releaseDate,
+            msg.sender
+        );
 
         unchecked {
             idToAddress[totalSupply] = clone;
@@ -41,5 +47,13 @@ contract FlixFactory is Ownable {
         }
 
         emit MovieCreated(clone);
+    }
+
+    fallback() external payable {
+        console.log("----- fallback:", msg.value);
+    }
+
+    receive() external payable {
+        console.log("----- receive:", msg.value);
     }
 }
